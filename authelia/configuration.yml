@@ -1,0 +1,53 @@
+# configuration.yml
+---
+log:
+  level: info
+
+server:
+  host: 0.0.0.0
+  port: 9091
+
+jwt_secret: un_secret_jwt_ici
+default_redirection_url: https://flame.domaine.com
+
+totp:
+  issuer: domaine.com
+
+authentication_backend:
+  file:
+    path: /config/users_database.yml
+    password:
+      algorithm: argon2id
+      iterations: 1
+      key_length: 32
+      salt_length: 16
+      memory: 1024
+      parallelism: 8
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: "traefik.domaine.com"
+      policy: one_factor
+      # policy: two_factor
+    - domain: "portainer.domaine.com"
+      policy: one_factor
+    - domain: "flame.domaine.com"
+      policy: one_factor
+
+session:
+  name: authelia_session
+  secret: un_autre_secret_ici
+  expiration: 1h
+  inactivity: 5m
+  domain: domaine.com
+
+storage:
+  encryption_key: une_cle_de_chiffrement_secrete_ici
+  local:
+    path: /config/db.sqlite
+
+notifier:
+  disable_startup_check: false
+  filesystem:
+    filename: /config/notification.txt

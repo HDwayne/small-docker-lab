@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  flame:
+    image: pawelmalak/flame
+    container_name: flame
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PASSWORD=password
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.flame.rule=Host(`flame.domaine.com`)
+      - traefik.http.routers.flame.entrypoints=websecure
+      - traefik.http.routers.flame.tls.certresolver=letsencrypt
+      - "traefik.http.routers.flame.middlewares=authelia@docker"
+    networks:
+      - web
+
+networks:
+  web:
+    external: true

@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:v2.4
+    container_name: traefik
+    restart: unless-stopped
+    networks:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik.yml:/traefik.yml:ro"
+      - "./acme.json:/acme.json"
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.traefik.rule=Host(`traefik.domaine.com`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+
+      # - "traefik.http.routers.traefik.middlewares=auth"
+      # - 'traefik.http.middlewares.auth.basicauth.users=user:$apr1$tsLxckzF$1O3TNGq32bJWD2v9V8Sgy.'
+
+      - "traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://authelia.domaine.com/"
+      - "traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=X-Forwarded-User"
+      - "traefik.http.routers.traefik.middlewares=authelia@docker"
+networks:
+  web:
+    external: true
